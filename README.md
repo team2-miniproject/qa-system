@@ -173,9 +173,9 @@ qa-system/
 ---
 
 ## Future Improvements
-- Implement **Search Functionality** for questions.
-- Add **Upvote/Downvote System** for answers.
-- Store passwords securely using **hashing**.
+- User password **hashing** for better security.
+- **Web Interfacing** for better usability
+- **Comment Section** and **Edit Feature**.
 - Implement **Admin Controls** to moderate content.
 
 ---
