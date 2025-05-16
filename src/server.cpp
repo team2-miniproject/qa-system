@@ -199,6 +199,25 @@ void handleClient(int clientSocket, const struct sockaddr_in& clientAddress) {
         }
         saveData("data/answers.txt", updatedAnswers);
 
+        // Remove questionID from index
+        std::vector<std::string> indexLines = loadData("data/index.txt");
+        std::vector<std::string> updatedIndexLines;
+
+        for (auto& line : indexLines) {
+            std::istringstream lss(line);
+            std::string keyword;
+            lss >> keyword;
+            std::string newLine = keyword;
+            std::string id;
+            while (lss >> id) {
+                if (id != questionID) {
+                    newLine += " " + id;
+                }
+            }
+            updatedIndexLines.push_back(newLine);
+        }
+        saveData("data/index.txt", updatedIndexLines);
+
         // Remove votes for deleted answers
         std::vector<std::string> votes = loadData("data/votes.txt");
         std::vector<std::string> updatedVotes;
@@ -378,7 +397,8 @@ void handleClient(int clientSocket, const struct sockaddr_in& clientAddress) {
             }
         }
     }
-     else if (action == "GET_QUESTIONS") {
+        
+    else if (action == "GET_QUESTIONS") {
         std::vector<std::string> questions = loadData("data/questions.txt");
         if (questions.empty()) {
             response = "NO_QUESTIONS";
@@ -390,6 +410,7 @@ void handleClient(int clientSocket, const struct sockaddr_in& clientAddress) {
             response = oss.str();
         }
     }
+        
     else if (action == "GET_ANSWERS") {
         iss >> questionID;
         std::vector<std::string> answers = loadData("data/answers.txt");
@@ -446,6 +467,7 @@ void handleClient(int clientSocket, const struct sockaddr_in& clientAddress) {
         }
         response = std::to_string(totalVotes);
     }
+        
     else if (action == "CHECK_VOTED") {
         std::string answerID, voteUser;
         iss >> answerID >> voteUser;
@@ -462,6 +484,7 @@ void handleClient(int clientSocket, const struct sockaddr_in& clientAddress) {
             }
         }
         response = alreadyVoted ? "VOTED" : "NOT_VOTED";
+        
     }else {
         response = "Invalid command";
     }
