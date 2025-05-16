@@ -19,6 +19,11 @@
 
 std::unordered_map<std::string, std::string> users;
 std::mutex users_mutex;
+std::mutex users_file_mutex;
+std::mutex questions_file_mutex;
+std::mutex answers_file_mutex;
+std::mutex votes_file_mutex;
+std::mutex index_file_mutex;
 
 std::vector<std::string> loadData(const std::string& filename) {
     std::vector<std::string> lines;
@@ -62,13 +67,15 @@ void handleClient(int clientSocket, const struct sockaddr_in& clientAddress) {
     iss >> action >> username;
 
     std::string response;
-    std::lock_guard<std::mutex> lock(users_mutex);
+    //std::lock_guard<std::mutex> lock(users_mutex);
 
     if (action == "REGISTER") {
         iss >> password;
+        std::lock_guard<std::mutex> lock(users_mutex);
         if (users.find(username) != users.end()) {
             response = "Registration failed: Username exists";
         } else {
+        std::lock_guard<std::mutex> fileLock(users_file_mutex);
             std::ofstream userFile("data/users.txt", std::ios::app);
             if (userFile) {
                 userFile << username << " " << password << "\n";
@@ -81,6 +88,7 @@ void handleClient(int clientSocket, const struct sockaddr_in& clientAddress) {
     } 
     else if (action == "LOGIN") {
         iss >> password;
+        std::lock_guard<std::mutex> lock(users_mutex);
         auto it = users.find(username);
         if (it != users.end() && it->second == password) {
             response = "Login successful";
@@ -90,6 +98,7 @@ void handleClient(int clientSocket, const struct sockaddr_in& clientAddress) {
     }
     else if (action == "ASK_QUESTION") {
         std::getline(iss >> std::ws, questionText);
+        std::lock_guard<std::mutex> questionLock(questions_file_mutex);
         std::vector<std::string> questions = loadData("data/questions.txt");
         int nextID = questions.empty() ? 1 : std::stoi(questions.back().substr(0, questions.back().find(' '))) + 1;
         
@@ -99,6 +108,7 @@ void handleClient(int clientSocket, const struct sockaddr_in& clientAddress) {
         saveData("data/questions.txt", questions);
     
         // --- Load existing inverted index ---
+         std::lock_guard<std::mutex> indexLock(index_file_mutex);
         std::map<std::string, std::set<int>> invertedIndex;
         std::ifstream existingIndexFile("data/index.txt");
         std::string indexLine;
@@ -146,6 +156,7 @@ void handleClient(int clientSocket, const struct sockaddr_in& clientAddress) {
             response = "Answer cannot be empty";
         } else {
             // Load existing answers
+            std::lock_guard<std::mutex> answersLock(answers_file_mutex);
             std::vector<std::string> answers = loadData("data/answers.txt");
     
             // Calculate next ID for the new answer
@@ -244,6 +255,8 @@ void handleClient(int clientSocket, const struct sockaddr_in& clientAddress) {
     else if (action == "DELETE_ANSWER") {
         std::string username, answerID;
         iss >> username >> answerID;
+        std::lock_guard<std::mutex> answersLock(answers_file_mutex);
+        std::lock_guard<std::mutex> votesLock(votes_file_mutex);
         std::vector<std::string> answers = loadData("data/answers.txt");
         std::vector<std::string> updatedAnswers;
         bool deleted = false;
@@ -288,7 +301,8 @@ void handleClient(int clientSocket, const struct sockaddr_in& clientAddress) {
         std::getline(iss, keyword);
         
         std::vector<std::string> terms = Utility::indexTokens(keyword);  // Tokenize the keyword
-
+        std::lock_guard<std::mutex> questionsLock(questions_file_mutex);
+        std::lock_guard<std::mutex> indexLock(index_file_mutex);
         
         // Load questions
         std::vector<std::string> questions = loadData("data/questions.txt");
@@ -371,7 +385,7 @@ void handleClient(int clientSocket, const struct sockaddr_in& clientAddress) {
         std::string voteUser, answerID;
         int voteVal;
         iss >> voteUser >> answerID >> voteVal;
-    
+       std::lock_guard<std::mutex> votesLock(votes_file_mutex);
         // Check if user already voted
         std::vector<std::string> votes = loadData("data/votes.txt");
         bool alreadyVoted = false;
@@ -397,8 +411,7 @@ void handleClient(int clientSocket, const struct sockaddr_in& clientAddress) {
             }
         }
     }
-        
-    else if (action == "GET_QUESTIONS") {
+     else if (action == "GET_QUESTIONS") {
         std::vector<std::string> questions = loadData("data/questions.txt");
         if (questions.empty()) {
             response = "NO_QUESTIONS";
@@ -409,8 +422,23 @@ void handleClient(int clientSocket, const struct sockaddr_in& clientAddress) {
             }
             response = oss.str();
         }
+    } 
+     else if (action == "GET_QUESTIONS_Short") {
+        std::vector<std::string> questions = loadData("data/questions.txt");
+        if (questions.empty()) {
+            response = "NO_QUESTIONS";
+        } else {
+            std::ostringstream oss;
+            for (size_t i = 0; i < questions.size(); ++i) {
+            std::string preview = questions[i].substr(0, 30);
+            if (questions[i].length() > 30) {
+                preview += "...";
+            }
+            oss<< preview << "\n";
+        }
+        response = oss.str();
+        }
     }
-        
     else if (action == "GET_ANSWERS") {
         iss >> questionID;
         std::vector<std::string> answers = loadData("data/answers.txt");
@@ -467,7 +495,6 @@ void handleClient(int clientSocket, const struct sockaddr_in& clientAddress) {
         }
         response = std::to_string(totalVotes);
     }
-        
     else if (action == "CHECK_VOTED") {
         std::string answerID, voteUser;
         iss >> answerID >> voteUser;
@@ -484,7 +511,6 @@ void handleClient(int clientSocket, const struct sockaddr_in& clientAddress) {
             }
         }
         response = alreadyVoted ? "VOTED" : "NOT_VOTED";
-        
     }else {
         response = "Invalid command";
     }
