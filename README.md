@@ -29,24 +29,45 @@ All interactions are stored in server text files. The system supports multiple c
 ✅Make utility (Install make)
 ✅POSIX-compliant system (e.g., Linux, macOS)
 
+
 ### **1. Clone the repository**
 ```sh
 git clone https://github.com/team2-miniproject/qa-system.git
 cd qa-system
 ```
 
-### **2. Compile the Server and client and other utilities**
+### **2. Change IP Address to Your Wi-Fi IP**
+**Find Your IP address**
+```sh
+# For macOS/Linux
+ifconfig
+
+# For Windows
+ipconfig
+```
+**Update client.cpp**
+- Open the file client.cpp.
+- Locate the line where the **IP address** is defined (e.g., const char* server_ip = "127.0.0.1";).
+- Replace it with your Wi-Fi IP address (e.g., "192.168.x.x").
+Example:
+```
+const char* server_ip = "192.168.1.100"; // Replace with your Wi-Fi IP
+
+```
+- Make sure both the server and client are connected to the **same network**.
+
+### **3. Compile the Server and client and other utilities**
 ```sh
 make clean
 make
 ```
 
-### **3. Run the Server**
+### **4. Run the Server**
 ```sh
 ./server
 ```
 
-### **4. Run the Client**
+### **5. Run the Client**
 ```sh
 ./client
 ```
