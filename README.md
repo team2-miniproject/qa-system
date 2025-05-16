@@ -7,12 +7,19 @@ All interactions are stored in server text files. The system supports multiple c
 
 ## Features
 ✅ **User Registration & Login**: Ensures unique usernames and secure access.
+
 ✅ **Question Submission**: Users can post questions, each assigned a unique ID. 
+
 ✅ **Answer Submission**: Users can answer existing questions by referencing their IDs.
+
 ✅ **File-based Storage**: Questions and answers are stored in questions.txt and answers.txt respectively.
+
 ✅ **Multi-Client Support**: Handles multiple client connections concurrently using multithreading.
+
 ✅ **Search Questions**: Users can search for questions using specific keywords to quickly locate relevant content.
+
 ✅ **Delete Questions/Answers**: Authenticated users can delete their own questions and answers, enabling content management and moderation.
+
 
 ---
 
