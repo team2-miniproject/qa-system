@@ -9,7 +9,7 @@
 
 #define PORT 8080
 //#define SERVER_IP "192.168.29.176" //my home
-#define SERVER_IP "192.168.208.196"
+#define SERVER_IP "192.168.0.101"
 std::string sendCommand(const std::string& command) {
     int sock = socket(AF_INET, SOCK_STREAM, 0);
     sockaddr_in serv_addr{};
@@ -33,7 +33,6 @@ std::string sendCommand(const std::string& command) {
 
     return std::string(buffer);
 }
-
 void askQuestion(const std::string& username) {
     std::cin.ignore();
     std::cout << "Enter your question: ";
@@ -42,18 +41,19 @@ void askQuestion(const std::string& username) {
     std::string response = sendCommand("ASK_QUESTION " + username + " " + question);
     std::cout << response << "\n";
 }
-
 void answerQuestion(const std::string& username) {
     // Get and display questions
     std::string questionsResponse = sendCommand("GET_QUESTIONS");
+    std::string questionsResponse2 = sendCommand("GET_QUESTIONS_Short");
     if (questionsResponse == "NO_QUESTIONS") {
         std::cout << "\nNo questions available to answer.\n";
         return;
     }
 
     std::vector<std::string> questionLines = Utility::split(questionsResponse, '\n');
+        std::vector<std::string> questionLines2= Utility::split(questionsResponse2, '\n');
     std::cout << "\nAvailable Questions:\n";
-    for (const auto& qline : questionLines) {
+    for (const auto& qline : questionLines2) {
         if (qline.empty()) continue;
         size_t firstSpace = qline.find(' ');
         size_t secondSpace = qline.find(' ', firstSpace + 1);
@@ -62,13 +62,11 @@ void answerQuestion(const std::string& username) {
         std::string qText = qline.substr(secondSpace + 1);
         std::cout << qid << ".  " << qText << " (Asked by: " << qUser << ")\n";
     }
-
     // Get question ID input
     std::string qID;
     std::cout << "Enter the Question ID to view answers or answer it: ";
     std::cin >> qID;
     std::cin.ignore();
-
     // Get question text for display
     std::string qText = "";
     for (const auto& qline : questionLines) {
@@ -77,11 +75,9 @@ void answerQuestion(const std::string& username) {
             break;
         }
     }
-
     // Get and display answers
     std::string answersResponse = sendCommand("GET_ANSWERS 0 " + qID);
     std::cout << "\nAnswers for Question: " << qText << "\n";
-    
     if (answersResponse == "NO_ANSWERS") {
         std::cout << "No answers yet.\n";
     } else {
@@ -175,16 +171,15 @@ void deleteQuestion(const std::string& username) {
         std::cout << "You have no questions to delete.\n";
         return;
     }
-
     std::string qid;
-    while (true) {
+    while (true)
+     {
         std::cout << "Enter Question ID to delete (0 to cancel): ";
         std::cin >> qid;
         if (qid == "0") return;
         if (std::find(userQuestions.begin(), userQuestions.end(), qid) != userQuestions.end()) break;
         std::cout << "Invalid ID. Please enter one of your question IDs.\n";
     }
-
     std::string result = sendCommand("DELETE_QUESTION 0 " + username + " " + qid);
     std::cout << result << "\n";
 }
@@ -335,7 +330,9 @@ int main() {
             if (authResponse.find("successful") != std::string::npos) {
                 std::cout << "Please login to continue.\n\n";
                 continue;  // Loop back to login prompt
-            } else {
+            } 
+            else 
+            {
                 std::cout << "Registration failed. Try again.\n\n";
                 continue;
             }
