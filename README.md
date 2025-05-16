@@ -147,48 +147,47 @@ make
 ---
 ## Project Structure
 ```
-## Project Structure
 qa-system/
-├── Makefile
-├── client                  # Compiled client executable
-├── server                  # Compiled server executable
+├── Makefile                # Build configuration for compiling the project
+├── client                  # Compiled client executable for end users
+├── server                  # Compiled server executable for backend processing
 ├── config/
-│   └── config.txt          # Configuration settings
+│   └── config.txt          # Configuration settings for server and client
 ├── data/
-│   ├── answers.txt         # Stored answers
-│   ├── index.txt           # Index for fast lookup
-│   ├── questions.txt       # Stored questions
-│   ├── users.txt           # Registered users info
-│   └── votes.txt           # Votes for Q&A
-├── src/                    # Source code
+│   ├── answers.txt         # Persistent storage for all answer data
+│   ├── index.txt           # Index file for optimizing search operations
+│   ├── questions.txt       # Persistent storage for all question data
+│   ├── users.txt           # User account information and credentials
+│   └── votes.txt           # Record of all votes cast on questions and answers
+├── src/                    # Source code directory
 │   ├── answer/
-│   │   ├── Answer.cpp
-│   │   └── Answer.h
+│   │   ├── Answer.cpp      # Implements Answer class methods for creating and managing answers
+│   │   └── Answer.h        # Defines Answer class with properties and method declarations
 │   ├── databaseManager/
-│   │   ├── DatabaseManager.cpp
-│   │   └── DatabaseManager.h
+│   │   ├── DatabaseManager.cpp  # Implements file I/O and data persistence operations
+│   │   └── DatabaseManager.h    # Defines interface for data storage and retrieval
 │   ├── question/
-│   │   ├── Question.cpp
-│   │   └── Question.h
+│   │   ├── Question.cpp    # Implements Question class methods for creating and managing questions
+│   │   └── Question.h      # Defines Question class with properties and method declarations
 │   ├── search/
-│   │   ├── SearchEngine.cpp
-│   │   └── SearchEngine.h
+│   │   ├── SearchEngine.cpp  # Implements text search algorithms and query processing
+│   │   └── SearchEngine.h    # Defines search functionality interface
 │   ├── sentimentAnalyzer/
-│   │   ├── SentimentAnalyzer.cpp
-│   │   └── SentimentAnalyzer.h
+│   │   ├── SentimentAnalyzer.cpp  # Implements text sentiment analysis for content moderation
+│   │   └── SentimentAnalyzer.h    # Defines sentiment analysis interface
 │   ├── threadManager/
-│   │   ├── ThreadManager.cpp
-│   │   └── ThreadManager.h
+│   │   ├── ThreadManager.cpp  # Implements multithreading for concurrent client connections
+│   │   └── ThreadManager.h    # Defines thread management interface
 │   ├── user/
-│   │   ├── User.cpp
-│   │   └── User.h
-│   └── utility/
-│   │   ├── Utility.cpp
-│   │   └── Utility.h
-│   ├── client.cpp
-│   ├── server.cpp
-│   ├── template.h
-└── README.md
+│   │   ├── User.cpp        # Implements User class methods for authentication and profiles
+│   │   └── User.h          # Defines User class with properties and method declarations
+│   ├── utility/
+│   │   ├── Utility.cpp     # Implements helper functions used across the system
+│   │   └── Utility.h       # Defines utility functions and common constants
+│   ├── client.cpp          # Main client application with UI and server communication
+│   ├── server.cpp          # Main server application handling client requests
+│   ├── template.h          # Contains template classes and functions used throughout the code
+└── README.md               # Project documentation and setup instructions
 ```
 
 ---
